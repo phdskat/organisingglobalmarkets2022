@@ -185,7 +185,7 @@ ggraph(network) +
 ## Using `stress` as default layout
 ```
 
-![](ogmmaterials_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
+![](ogm2022sna_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
 
 Now we can add more layers, for instance adding labels to our nodes:
 
@@ -205,7 +205,7 @@ ggraph(network) +
 ## Warning: Ignoring unknown aesthetics: repel
 ```
 
-![](ogmmaterials_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
+![](ogm2022sna_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
 
 ### Calculating centrality measures
 
@@ -231,7 +231,7 @@ ggraph(network) +
 ## Using `stress` as default layout
 ```
 
-![](ogmmaterials_files/figure-html/unnamed-chunk-13-1.png)<!-- -->
+![](ogm2022sna_files/figure-html/unnamed-chunk-13-1.png)<!-- -->
 
 ### Calculate and add betweenness centrality
 
@@ -249,7 +249,7 @@ ggraph(network) +
 ## Using `stress` as default layout
 ```
 
-![](ogmmaterials_files/figure-html/unnamed-chunk-14-1.png)<!-- -->
+![](ogm2022sna_files/figure-html/unnamed-chunk-14-1.png)<!-- -->
 
 ### Calculate and visualize relationship tie strength (edge weight)
 
@@ -265,7 +265,7 @@ ggraph(network) +
 ## Using `stress` as default layout
 ```
 
-![](ogmmaterials_files/figure-html/unnamed-chunk-15-1.png)<!-- -->
+![](ogm2022sna_files/figure-html/unnamed-chunk-15-1.png)<!-- -->
   
 # **Case Exercise**
 
@@ -312,7 +312,7 @@ ggraph(network2) +
 ## increasing max.overlaps
 ```
 
-![](ogmmaterials_files/figure-html/unnamed-chunk-17-1.png)<!-- -->
+![](ogm2022sna_files/figure-html/unnamed-chunk-17-1.png)<!-- -->
 
 ### Calculate and add degree and betweenness centrality measures
 
@@ -346,7 +346,7 @@ ggraph(network2) +
 ## Using `stress` as default layout
 ```
 
-![](ogmmaterials_files/figure-html/unnamed-chunk-20-1.png)<!-- -->
+![](ogm2022sna_files/figure-html/unnamed-chunk-20-1.png)<!-- -->
 
 # **Discussions**
 
