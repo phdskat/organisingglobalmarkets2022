@@ -1,0 +1,264 @@
+---
+title: "OGM 2022 Materials - SA"
+author: "Rasmus Corlin Christensen"
+date:  "`r Sys.Date()`"
+output: 
+  html_document:
+    keep_md: yes
+    toc: true
+    toc_depth: 3
+
+---
+
+```{r}
+knitr::opts_chunk$set(fig.width=12, fig.height=10) # we want nice and big figures to read our plot, so just setting a figure width and height as a general setting here
+```
+
+# **Sequence Analysis for the Green Transition - Intro and Case Exercise**
+
+### The European Financial Reporting Advisory Group (EFRAG)
+
+The European Financial Reporting Advisory Group (EFRAG) is a private association established in 2001 with the encouragement of the European Commission to serve the public interest. For two decades, the organization has brought together national and regional associations in Europe, mostly national accounting associations. 
+
+EFRAG's main task has been to develop and promote "European views" on international accounting standards - the global rules and regulations that govern how companies account for and report on their financial activities. If you've ever seen an Annual Report or the like from a company, the information entailed is governed by international accounting standards.
+
+NOW, EFRAG has always been a sort of "sidekick" to the REAL international accounting standard-setters, the International Accounting Standards Board (IASB) - a supposedly independent global organisation, but in practice heavily dominated by global accounting firms, in particular the "Big Four" - Deloitte, EY, KPMG and PwC. (I'm dramatizing a little bit here for effect.)
+
+HOWEVER, the green transition has opened up a radical new opportunity for EFRAG. The European Union is preparing a new [Corporate Sustainability Reporting Directive (CSRD)](https://ec.europa.eu/info/business-economy-euro/company-reporting-and-auditing/company-reporting/corporate-sustainability-reporting_en#review), with the aim of consolidation and extending all reporting and disclosures required by companies on sustainability and climate change.
+
+European dissatisfaction with the IASB has meant the European Commission has [specifically asked EFRAG](https://www.efrag.org/Assets/Download?assetUrl=/sites/webpublishing/SiteAssets/Letter%2520EVP%2520annexNFRD%2520%2520technical%2520mandate%25202020.pdf) to take on this issue, preparing advice and developing model rules and guidelines.
+
+EFRAG has thus been giving a significant role in shaping the reporting and disclosure demands placed on companies operating in the European Union (and potentially beyond). To that end, EFRAG has appointed a series of [Expert Working Groups (EWGs)](https://www.efrag.org/News/Project-545/Appointed--Members-of-the-Expert-Working-Groups-to-provide-input-on-t) that will look in detail at different dimensions of the reporting.
+
+So it's pertinent to ask: Who are these people in these EFRAG EWGs who are going to shape sustainability reporting for companies going forward? What sort of fields and networks are they part of? And what does that mean for policy-making?
+
+That's what we'll do here.
+
+### Loading in data
+
+I have taken the liberty of collecting biographical information, from LinkedIn, on the 71 members of the EFRAG expert working groups (where data was available). We will load in this data, which contains name, nationality, group (EWG membership), primary education, and career data (organisational sector) for each year of each individuals' career, from 1984 (where application) to 2022.
+
+For some, you'll see, data was not available - we'll deal with that in due course.
+
+Some of the bibliographical data included is not relevant for the sequence analysis itself, for instance primary education or nationality, but we/you can use that to augment your analysis where relevant.
+
+*<Maybe a brief discussion/talk on data collection and missing data, if we have time>*
+
+```{r}
+data = read.csv("https://raw.githubusercontent.com/phdskat/organisingglobalmarkets2022/main/efrag2022.csv",row.names=1)
+```
+
+### Looking at the data
+
+```{r}
+View(data)
+```
+
+### Tidyverse
+
+To manipulate the data, we'll load `tidyverse`
+
+```{r}
+library(tidyverse)
+```
+
+Before we begin our sequence analysis, we'll just prepare the data we have, primarily filtering out the people for whom we don't have sequence data. We'll do that by filtering, removing any rows that don't have career information for 2022, in the "X2022" column.
+
+```{r}
+data <- data %>% 
+  filter(X2022 != "")
+```
+
+### Sampling
+
+For ease of analysis, we'll start with a sample of the data. So, like with the SNA data, we "slice" the data, selecting a sample of, say, 15 rows (people) to work with. For comparison's sake, we'll select the same 20 people that we can all work with. I chose these at random with the sample() function. You can play around with doing the analysis with other samples - larger samples, random samples, etc.
+
+```{r}
+data <- data %>% 
+    slice(c(4,22,18,45,28,5,60,34,50,35,24,23,26,6,47))
+```
+
+### TraMineR
+
+Okay, so do to our sequence analysis - to ask our analytical questions of this expert community and their professional careers - we'll use the R package `TraMineR` (Trajectory Mining for R), a toolbox for exploring sequence data. It can do all the basic things we want for our sequence analysis in R.
+
+```{r}
+#install.packages("TraMineR")
+library(TraMineR)
+```
+
+### Defining sequences (telling TraMineR where our sequences are)
+
+The first thing we need to do is *define* our sequences, or in other words *telling* TraMineR where our sequences are in the data, and what they look like. This is similar, for instance - if you recall, to the first operation when plotting with `ggplot`, where we define the base object we want to work with. With TraMineR, this is done with the `seqdef()` (sequence definition) function. We'll save the sequence object in a new object called 'sequences':
+
+```{r}
+sequences <- seqdef(data, var = 5:43, missing = "") 
+
+# the relevant variables, our career data, is in columns 5 to 43.
+# it's also useful to tell the function what our missing data looks like. here, it's just "", so we'll tell it that.
+
+```
+Notice here that the `seqdef` function gives us quite a lot of information about our sequences. There are 8 distinct states (i.e. the alphabet), there are 71 sequences, the min/max lengths are 0/39. 
+
+Good, now let's work with it.
+
+### Viewing the raw sequences
+
+```{r}
+sequences
+```
+
+### Overview (Index) plot
+
+To get an overview sense at these trajectories, we'll plot them all together on an Index ("I") plot.
+
+What can you see in terms of patterns here? What does it tell us about this community?
+
+```{r}
+seqIplot(sequences,with.legend="right") #we're just gonna move the legend to the right so we can have a good look
+```
+
+### State distribution plot
+
+To get a closer look at the individual sectors, and their prevalence across the years, we can plot the distribution of each state (sector) with a "d" (distribution") plot.
+
+What can you see in terms of patterns here? What does it tell us about this community?
+
+```{r}
+seqdplot(sequences,with.legend="right")
+```
+
+### Optimal matching
+
+Now, remember we talked about *optimal matching*? Optimal matching is a technique that helps us find out which typical careers path there are in our community, and how they different. Optimal matching works by assessing the (dis)similarity of sequences by assigning costs to operations that would be needed to align these. Sequences can then be clustered according to similarity.
+
+To do our optimal matching analysis, the first thing we need to calculate is the *cost* of transformation each sequence (career) into another. Thankfully, TraMineR can do this automatically by calculating the *transition rates* (trates).
+
+```{r}
+trates <- seqtrate(sequences)
+
+trates
+```
+
+Let's go over it. What can you see in terms of patterns here? What does it tell us about this community?
+
+Next, we need to calculate sequence distances, based on the transition rates:
+
+```{r}
+distances <- seqdist(sequences, method = "OM", sm = "TRATE", with.missing= TRUE)
+
+distances
+```
+
+### Clusters
+
+Now we can use the `cluster` package to place our sequences into clusters, into groups, based on an agglomerative hierarchical method (agnes), with a clustering algorithm called ward. We can go into detail with this, if needed.
+
+```{r}
+# installing and loading the cluster package
+
+#install.packages("cluster")
+library(cluster)
+
+# first we generate the clustering tree (agnestree)
+
+agnestree <- agnes(distances, method = "ward")
+
+# then we slice the tree into a specified number of clusters, let's try with 3 first, but you can try different cluster solutions - could also be 2,3,5,6, etc.
+
+clusters <- cutree(agnestree, k = 3)
+```
+
+### Viewing clusters
+
+And now, with TraMineR, we can view our clusters on an Index ("I") plot: 
+
+```{r}
+seqIplot(sequences, group = clusters, with.legend = "right")
+```
+
+Let's go over it. What can you see in terms of patterns here? What does it tell us about this community?
+
+# **Case Exercise**
+
+Now for the exercise, you'll use the full sample of people involved in EFRAG sustainability reporting standard-setting. With that, we have a fuller picture.
+
+These exercises you will run yourself in smaller groups, and then we will come back to discussion points outlined at the end of the document.
+
+### Loading in the full data - we also filter out those without any career information here to start.
+
+```{r}
+data = read.csv("https://raw.githubusercontent.com/phdskat/organisingglobalmarkets2022/main/efrag2022.csv",row.names=1) %>% 
+  filter(X2022 != "")
+```
+
+### Defining sequences 
+
+```{r}
+sequences <- seqdef(data, var = 5:43, missing = "") 
+```
+
+### Viewing the raw sequences
+
+```{r}
+sequences
+```
+
+### Overview (Index) plot
+
+```{r}
+seqIplot(sequences,with.legend="right") #we're just gonna move the legend to the right so we can have a good look
+```
+
+### State distribution plot
+
+```{r}
+seqdplot(sequences,with.legend="right")
+```
+
+### Optimal matching
+
+```{r}
+trates <- seqtrate(sequences)
+
+trates
+```
+
+Calculating sequence distances, based on the transition rates:
+
+```{r}
+distances <- seqdist(sequences, method = "OM", sm = "TRATE", with.missing= TRUE)
+
+distances
+```
+
+### Clusters
+
+```{r}
+# first we generate the clustering tree (agnestree)
+
+agnestree <- agnes(distances, method = "ward")
+
+# then we slice the tree into a specified number of clusters, say.. 4?
+
+clusters <- cutree(agnestree, k = 4)
+```
+
+### Viewing clusters
+
+And now, with TraMineR, we can view our clusters on an Index ("I") plot: 
+
+```{r}
+seqIplot(sequences, group = clusters, with.legend = "right")
+```
+
+# **Discussions**
+
+* What are the key features of these sequences, in terms of structure, positions, relations?
+
+* If you were leading a Copenhagen Municipality Climate plan, and you wanted to, say, try to promote the most sustainability-progressive reporting standards, how would you do that? How do you think about this problem?
+
+* What are the key sectors and experiences/expertises in the network to lobby/contact/connect with, based on descriptive and clustering analysis?
+
+* Try to re-do some of the coding. First, you'll want to find some of the CVs - you you can search the people in the data on LinkedIn, their CVs are there. Second, try to "translate" these CVs into career sequences on your own, thinking about your coding. If you have time, you can load your own sequences into RStudio, and try to re-do the analysis.
+
